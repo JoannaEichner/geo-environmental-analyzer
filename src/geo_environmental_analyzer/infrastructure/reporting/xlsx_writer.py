@@ -5,6 +5,7 @@ from pathlib import Path
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font
+from openpyxl.worksheet.worksheet import Worksheet
 
 from geo_environmental_analyzer.domain.models import AnalysisBundle, ParcelRecord
 from geo_environmental_analyzer.domain.protocols import ReportWriter
@@ -14,6 +15,7 @@ from geo_environmental_analyzer.domain.protocols import ReportWriter
 class ParcelSheetRow:
     parcel_number: str
     cadastral_district: str
+
 
 def map_parcels_to_sheet_rows(parcels: list[ParcelRecord]) -> list[ParcelSheetRow]:
     rows: list[ParcelSheetRow] = []
@@ -58,7 +60,9 @@ class XlsxReportWriter(ReportWriter):
         sheet.column_dimensions["A"].width = 18
         sheet.column_dimensions["B"].width = 35
 
-    def _write_water_status_sheet(self, workbook: Workbook, bundle: AnalysisBundle) -> None:
+    def _write_water_status_sheet(
+        self, workbook: Workbook, bundle: AnalysisBundle
+    ) -> None:
         sheet = workbook.create_sheet("02_Wody_Status")
         sheet.column_dimensions["A"].width = 32
         sheet.column_dimensions["B"].width = 70
@@ -119,7 +123,9 @@ class XlsxReportWriter(ReportWriter):
                 ],
             )
 
-    def _write_protected_areas_sheet(self, workbook: Workbook, bundle: AnalysisBundle) -> None:
+    def _write_protected_areas_sheet(
+        self, workbook: Workbook, bundle: AnalysisBundle
+    ) -> None:
         sheet = workbook.create_sheet("04_Ochrona")
         sheet.append(["Nazwa obiektu", "Odległość [km]"])
 
@@ -131,27 +137,39 @@ class XlsxReportWriter(ReportWriter):
 
     def _append_block(
         self,
-        sheet: object,
+        sheet: Worksheet,
         title: str,
         rows: list[tuple[str, str]],
     ) -> None:
-        is_empty_sheet = sheet.max_row == 1 and sheet["A1"].value is None and sheet["B1"].value is None
+        is_empty_sheet = (
+            sheet.max_row == 1
+            and sheet["A1"].value is None
+            and sheet["B1"].value is None
+        )
         start_row = 1 if is_empty_sheet else sheet.max_row + 2
-        sheet.merge_cells(start_row=start_row, start_column=1, end_row=start_row, end_column=2)
+        sheet.merge_cells(
+            start_row=start_row, start_column=1, end_row=start_row, end_column=2
+        )
 
         title_cell = sheet.cell(row=start_row, column=1, value=title)
         title_cell.font = Font(bold=True)
-        title_cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        title_cell.alignment = Alignment(
+            horizontal="center",
+            vertical="center",
+            wrap_text=True,
+        )
 
         current_row = start_row + 1
         for label, value in rows:
             sheet.cell(row=current_row, column=1, value=label)
             sheet.cell(row=current_row, column=2, value=value)
-            sheet.cell(row=current_row, column=1).alignment = Alignment(wrap_text=True, vertical="top")
-            sheet.cell(row=current_row, column=2).alignment = Alignment(wrap_text=True, vertical="top")
+            sheet.cell(row=current_row, column=1).alignment = Alignment(
+                wrap_text=True, vertical="top"
+            )
+            sheet.cell(row=current_row, column=2).alignment = Alignment(
+                wrap_text=True, vertical="top"
+            )
             current_row += 1
-
-        current_row += 1
 
     def _normalize_monitoring(self, value: str) -> str:
         normalized = value.strip().lower()
@@ -166,6 +184,3 @@ class XlsxReportWriter(ReportWriter):
         if "zagro" in normalized:
             return "zagrożona"
         return value
-
-
-

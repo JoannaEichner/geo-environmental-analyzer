@@ -125,7 +125,10 @@ def test_pipeline_and_writer_generate_expected_xlsx(tmp_path: Path) -> None:
     assert water_status_sheet["A1"].value == 'PLRW2000112727699 „Pisia test”:'
     assert water_status_sheet["A2"].value == "Status JCWP"
     assert water_status_sheet["B2"].value == "naturalna czesc wod"
-    assert water_status_sheet["A7"].value == "Jednolita czesc wod podziemnych nr 65 PLGW200065"
+    assert (
+        water_status_sheet["A7"].value
+        == "Jednolita czesc wod podziemnych nr 65 PLGW200065"
+    )
 
     water_goals_sheet = workbook["03_Wody_Cele"]
     assert water_goals_sheet["A1"].value == 'PLRW2000112727699 „Pisia test”:'
