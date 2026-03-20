@@ -61,6 +61,15 @@ The current MVP includes:
 - The main report format is XLSX.
 - Distances are reported in kilometers with precision to 2 decimal places.
 - MVP includes four analyses: parcels, JCWP, JCWPd, and nature protection.
+- ULDK `GetParcelById` returns parcel district name under `obreb`, not `obreb_ewidencyjny`.
+- Parcel enrichment currently uses ULDK for municipality name and parcel district name.
+- Parcel sheet in the XLSX report uses two columns only: parcel number and district (code + name).
+- Water sheets in the XLSX report use a block layout with one title row per water body and label/value rows below.
+- Surface water report codes are displayed with the `PLRW...` form.
+- Groundwater report titles use spatial metadata `NR_JCWPD` and `KOD_UE`, for example `Jednolita czesc wod podziemnych nr 65 PLGW200065`.
+- Nature protection report lists specific protected object names from RDOS `nazwa` fields, not only category names.
+- Nature protection report labels are composed as form type plus object name, for example `Obszar chronionego krajobrazu ...`, `Natura 2000 Obszar specjalnej ochrony "..."`, `Rezerwat przyrody "..."`.
+- CLI contract is `gea run --input <path> --output <path> --config <path>`.
 
 ## Update Policy
 

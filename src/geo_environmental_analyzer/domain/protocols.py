@@ -25,14 +25,6 @@ class ParcelAnalyzer(Protocol):
     def analyze(self, route: OrderedRoute) -> list[ParcelRecord]:
         ...
 
-class SurfaceWaterAnalyzer(Protocol):
-    def analyze(self, route: OrderedRoute) -> SurfaceWaterResult | None:
-        ...
-
-class GroundWaterAnalyzer(Protocol):
-    def analyze(self, route: OrderedRoute) -> GroundWaterResult | None:
-        ...
-
 class ProtectedAreaAnalyzer(Protocol):
     def analyze(self, route: OrderedRoute) -> list[ProtectedAreaDistance]:
         ...
@@ -41,18 +33,18 @@ class ReportWriter(Protocol):
     def write(self, bundle: AnalysisBundle, output_path: Path) -> None:
         ...
 
+class SurfaceWaterAnalyzer(Protocol):
+    def analyze(self, route: OrderedRoute) -> list[SurfaceWaterResult]:
+        ...
+
+class GroundWaterAnalyzer(Protocol):
+    def analyze(self, route: OrderedRoute) -> list[GroundWaterResult]:
+        ...
+
 class SurfaceWaterRepository(Protocol):
-    def get_for_route(self, route: OrderedRoute) -> SurfaceWaterResult | None:
+    def get_for_route(self, route: OrderedRoute) -> list[SurfaceWaterResult]:
         ...
 
 class GroundWaterRepository(Protocol):
-    def get_for_route(self, route: OrderedRoute) -> GroundWaterResult | None:
-        ...
-
-class ProtectedAreaRepository(Protocol):
-    def get_for_route(self, route: OrderedRoute) -> list[ProtectedAreaDistance]:
-        ...
-
-class ParcelRepository(Protocol):
-    def get_for_route(self, route: OrderedRoute) -> list[ParcelRecord]:
+    def get_for_route(self, route: OrderedRoute) -> list[GroundWaterResult]:
         ...
