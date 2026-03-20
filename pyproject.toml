@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "geo-environmental-analyzer"
+version = "0.1.0"
+description = "End-to-end environmental analysis from TXT input to XLSX report."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pandas",
+    "geopandas",
+    "shapely",
+    "pyproj",
+    "requests",
+    "openpyxl",
+]
+
+[project.scripts]
+gea = "geo_environmental_analyzer.main:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
