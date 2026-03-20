@@ -16,7 +16,9 @@ class OrderedRoute:
 @dataclass(slots=True)
 class ParcelRecord:
     parcel_number: str
-    cadastral_district: str
+    cadastral_district_code: str
+    cadastral_district_name: str = ""
+    municipality_name: str = ""
     parcel_identifier: str = ""
 
 @dataclass(slots=True)
@@ -51,6 +53,7 @@ class ProtectedAreaDistance:
 class AnalysisBundle:
     route: OrderedRoute
     parcels: list[ParcelRecord] = field(default_factory=list)
-    surface_water: SurfaceWaterResult | None = None
-    groundwater: GroundWaterResult | None = None
+    surface_water: list[SurfaceWaterResult] = field(default_factory=list)
+    groundwater: list[GroundWaterResult] = field(default_factory=list)
     protected_areas: list[ProtectedAreaDistance] = field(default_factory=list)
+

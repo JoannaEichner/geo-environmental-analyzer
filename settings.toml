@@ -1,6 +1,6 @@
 [paths]
-jcwp_data_dir = "data/jcwp"
-rdos_data_dir = "data/rdos"
+waters_data_dir = "data/waters"
+rdos_data_dir = "data/RDOS"
 input_dir = "data/input"
 output_dir = "data/output"
 

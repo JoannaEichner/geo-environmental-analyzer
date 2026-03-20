@@ -6,7 +6,7 @@ import tomllib
 
 @dataclass(slots=True)
 class PathsConfig:
-    jcwp_data_dir: str
+    waters_data_dir: str
     rdos_data_dir: str
     input_dir: str
     output_dir: str
@@ -56,7 +56,7 @@ def load_settings(path: Path) -> AppConfig:
         services_section = _require_section(data, "services")
         analysis_section = _require_section(data, "analysis")
         paths = PathsConfig(
-            jcwp_data_dir=_require_non_empty_string(paths_section, "jcwp_data_dir"),
+            waters_data_dir=_require_non_empty_string(paths_section, "waters_data_dir"),
         rdos_data_dir=_require_non_empty_string(paths_section, "rdos_data_dir"),
         input_dir=_require_non_empty_string(paths_section, "input_dir"),
         output_dir=_require_non_empty_string(paths_section, "output_dir"),
