@@ -1,0 +1,13 @@
+[paths]
+jcwp_data_dir = "data/jcwp"
+rdos_data_dir = "data/rdos"
+input_dir = "data/input"
+output_dir = "data/output"
+
+[services]
+uldk_url = "https://uldk.gugik.gov.pl/"
+eziudp_url = "https://integracja.gugik.gov.pl/eziudp/index.php"
+
+[analysis]
+distance_limit_km = 10
+http_timeout_seconds = 25
