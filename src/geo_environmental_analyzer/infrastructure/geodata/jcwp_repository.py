@@ -2,14 +2,19 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+
 import geopandas as gpd
 import pandas as pd
 from shapely.geometry import Point
 
 from geo_environmental_analyzer.domain.models import OrderedRoute, SurfaceWaterResult
 from geo_environmental_analyzer.domain.protocols import SurfaceWaterRepository
-from geo_environmental_analyzer.domain.services import detect_epsg_2000, normalize_pl2000_coordinates
+from geo_environmental_analyzer.domain.services import (
+    detect_epsg_2000,
+    normalize_pl2000_coordinates,
+)
 from geo_environmental_analyzer.infrastructure.config import AppConfig
+
 
 @dataclass(slots=True)
 class JcwpRepositoryConfig:
@@ -19,8 +24,11 @@ class JcwpRepositoryConfig:
     t4b_path: Path
     spatial_ms_kod_field: str = "MS_KOD"
 
+
 class FileJcwpRepository(SurfaceWaterRepository):
-    def __init__(self, app_config: AppConfig, repo_config: JcwpRepositoryConfig) -> None:
+    def __init__(
+        self, app_config: AppConfig, repo_config: JcwpRepositoryConfig
+    ) -> None:
         self._app_config = app_config
         self._repo_config = repo_config
 
@@ -100,7 +108,7 @@ class FileJcwpRepository(SurfaceWaterRepository):
             )
 
         return results
-    
+
     def _normalize_str(self, value: object) -> str:
         if value is None:
             return ""
@@ -124,7 +132,7 @@ class FileJcwpRepository(SurfaceWaterRepository):
         if normalized.startswith("RW"):
             return f"PL{normalized}"
         return normalized
-    
+
     def _build_index(
         self,
         df: pd.DataFrame,
@@ -152,11 +160,13 @@ class FileJcwpRepository(SurfaceWaterRepository):
 
             result[key] = {
                 field_name: self._normalize_str(row[column_name])
-                for field_name, column_name in zip(fields, field_columns)
+                for field_name, column_name in zip(
+                    fields, field_columns, strict=False
+                )
             }
 
         return result
-    
+
     def _read_gdbtable(self, path: Path):
         if not path.exists():
             raise FileNotFoundError(f"Missing geodata file: {path}")
@@ -179,7 +189,7 @@ class FileJcwpRepository(SurfaceWaterRepository):
             return gpd.read_file(str(gdb_dir), layer=layer_index)
         except Exception as error:
             raise RuntimeError(f"Unable to read geodata layer: {path}") from error
-        
+
     def _find_ms_kod_for_point(self, value_a: float, value_b: float) -> str:
         epsg = detect_epsg_2000(value_a, value_b)
         easting, northing = normalize_pl2000_coordinates(value_a, value_b)
@@ -213,7 +223,9 @@ class FileJcwpRepository(SurfaceWaterRepository):
 
             try:
                 candidate_indexes = list(gdf.sindex.intersection(point.bounds))
-                candidates = gdf.iloc[candidate_indexes] if candidate_indexes else gdf.iloc[0:0]
+                candidates = (
+                    gdf.iloc[candidate_indexes] if candidate_indexes else gdf.iloc[0:0]
+                )
             except Exception:
                 candidates = gdf
 
@@ -227,8 +239,3 @@ class FileJcwpRepository(SurfaceWaterRepository):
             return self._normalize_str(hits.iloc[0][code_column])
 
         return ""
-
-
-
-
-

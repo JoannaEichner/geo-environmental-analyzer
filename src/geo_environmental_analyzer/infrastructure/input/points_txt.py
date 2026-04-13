@@ -23,7 +23,7 @@ class TxtPointReader(PointReader):
             points.append(point)
 
         return points
-    
+
     def _parse_line(self, line: str, line_number: int) -> InputPoint:
         if "\t" in line:
             parts = [part.strip() for part in line.split("\t")]
@@ -31,9 +31,9 @@ class TxtPointReader(PointReader):
             parts = self._split_fallback(line)
         if len(parts) < 4:
             raise ValueError(
-        f"Line {line_number}: expected at least 4 columns, got {len(parts)}"
-    )
-        
+                f"Line {line_number}: expected at least 4 columns, got {len(parts)}"
+            )
+
         number = parts[0].strip()
         name = parts[1].strip()
         x_raw = parts[2].strip()
@@ -47,7 +47,7 @@ class TxtPointReader(PointReader):
             raise ValueError(f"Line {line_number}: x coordinate is empty")
         if not y_raw:
             raise ValueError(f"Line {line_number}: y coordinate is empty")
-        
+
         try:
             x_value = float(x_raw.replace(",", "."))
         except ValueError as error:
@@ -62,7 +62,6 @@ class TxtPointReader(PointReader):
                 f"Line {line_number}: invalid y coordinate value '{y_raw}'"
             ) from error
 
-
         return InputPoint(
             number=number,
             name=name,
@@ -70,23 +69,12 @@ class TxtPointReader(PointReader):
             y_raw=y_value,
         )
 
-    
     def _split_fallback(self, line: str) -> list[str]:
         if ";" in line:
             return [part.strip() for part in line.split(";")]
 
         return [part.strip() for part in re.split(r"\s+", line.strip())]
-    
+
     def read_route(self, path: Path) -> OrderedRoute:
-        points = self.read(path)     
+        points = self.read(path)
         return build_ordered_route(points)
-
-
-
-
-
-
-
-
-
-

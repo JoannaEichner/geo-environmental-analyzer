@@ -7,10 +7,14 @@ import geopandas as gpd
 import pandas as pd
 from shapely.geometry import Point
 
-from geo_environmental_analyzer.domain.models import OrderedRoute, GroundWaterResult
+from geo_environmental_analyzer.domain.models import GroundWaterResult, OrderedRoute
 from geo_environmental_analyzer.domain.protocols import GroundWaterRepository
-from geo_environmental_analyzer.domain.services import detect_epsg_2000, normalize_pl2000_coordinates
+from geo_environmental_analyzer.domain.services import (
+    detect_epsg_2000,
+    normalize_pl2000_coordinates,
+)
 from geo_environmental_analyzer.infrastructure.config import AppConfig
+
 
 @dataclass(slots=True)
 class JcwpdRepositoryConfig:
@@ -20,8 +24,11 @@ class JcwpdRepositoryConfig:
     t51_path: Path
     spatial_code_field: str = "kod_jcwpd"
 
+
 class FileJcwpdRepository(GroundWaterRepository):
-    def __init__(self, app_config: AppConfig, repo_config: JcwpdRepositoryConfig) -> None:
+    def __init__(
+        self, app_config: AppConfig, repo_config: JcwpdRepositoryConfig
+    ) -> None:
         self._app_config = app_config
         self._repo_config = repo_config
 
@@ -32,14 +39,14 @@ class FileJcwpdRepository(GroundWaterRepository):
         spatial_metadata = self._build_spatial_metadata()
 
         idx50 = self._build_index(
-             t50,
-             key_field="kod_jcwpd",
-             fields=[
+            t50,
+            key_field="kod_jcwpd",
+            fields=[
                 "st_ch",
                 "st_il",
                 "ocena_stan",
                 "id_monitor",
-             ],
+            ],
         )
 
         idx4a = self._build_index(
@@ -56,7 +63,7 @@ class FileJcwpdRepository(GroundWaterRepository):
 
         found_codes: list[str] = []
         seen_codes: set[str] = set()
-        
+
         for point in route.points:
             code = self._find_jcwpd_code_for_point(point.x_raw, point.y_raw)
             if not code:
@@ -117,7 +124,7 @@ class FileJcwpdRepository(GroundWaterRepository):
         if normalized.startswith("GW"):
             return f"PL{normalized}"
         return normalized
-    
+
     def _build_index(
         self,
         df: pd.DataFrame,
@@ -145,11 +152,13 @@ class FileJcwpdRepository(GroundWaterRepository):
 
             result[key] = {
                 field_name: self._normalize_str(row[column_name])
-                for field_name, column_name in zip(fields, field_columns)
+                for field_name, column_name in zip(
+                    fields, field_columns, strict=False
+                )
             }
 
         return result
-    
+
     def _read_gdbtable(self, path: Path):
         if not path.exists():
             raise FileNotFoundError(f"Missing geodata file: {path}")
@@ -199,12 +208,14 @@ class FileJcwpdRepository(GroundWaterRepository):
                     else self._format_groundwater_code(code)
                 ),
                 "number": (
-                    self._normalize_str(row[number_column]) if number_column is not None else ""
+                    self._normalize_str(row[number_column])
+                    if number_column is not None
+                    else ""
                 ),
             }
 
         return result
-        
+
     def _find_jcwpd_code_for_point(self, value_a: float, value_b: float) -> str:
         epsg = detect_epsg_2000(value_a, value_b)
         easting, northing = normalize_pl2000_coordinates(value_a, value_b)
@@ -234,7 +245,9 @@ class FileJcwpdRepository(GroundWaterRepository):
 
         try:
             candidate_indexes = list(gdf.sindex.intersection(point.bounds))
-            candidates = gdf.iloc[candidate_indexes] if candidate_indexes else gdf.iloc[0:0]
+            candidates = (
+                gdf.iloc[candidate_indexes] if candidate_indexes else gdf.iloc[0:0]
+            )
         except Exception:
             candidates = gdf
 
@@ -246,7 +259,7 @@ class FileJcwpdRepository(GroundWaterRepository):
             return ""
 
         return self._normalize_str(hits.iloc[0][code_column])
-    
+
     def _monitor_flag(self, raw_value: str) -> str:
         value = self._normalize_str(raw_value)
         if not value:

@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from geo_environmental_analyzer.domain.models import InputPoint, OrderedRoute, ParcelRecord
+from geo_environmental_analyzer.domain.models import (
+    InputPoint,
+    OrderedRoute,
+    ParcelRecord,
+)
 
 ZONE_EPSG = {
     5: 2176,
@@ -8,6 +12,7 @@ ZONE_EPSG = {
     7: 2178,
     8: 2179,
 }
+
 
 def detect_epsg_2000(value_a: float, value_b: float) -> int:
     def zone_digit(value: float) -> int:
@@ -37,6 +42,7 @@ def detect_epsg_2000(value_a: float, value_b: float) -> int:
         f"Cannot detect PL-2000 EPSG for coordinates: {value_a}, {value_b}"
     )
 
+
 def normalize_pl2000_coordinates(value_a: float, value_b: float) -> tuple[float, float]:
     epsg = detect_epsg_2000(value_a, value_b)
     expected_zone = epsg - 2171
@@ -64,12 +70,15 @@ def build_ordered_route(points: list[InputPoint]) -> OrderedRoute:
         raise ValueError("Cannot build route from empty points list")
     return OrderedRoute(points=list(points))
 
+
 def deduplicate_parcels(parcels: list[ParcelRecord]) -> list[ParcelRecord]:
     seen_identifiers: set[str] = set()
     unique_parcels: list[ParcelRecord] = []
 
     for parcel in parcels:
-        key = parcel.parcel_identifier.strip() or (f"{parcel.cadastral_district_code}::{parcel.parcel_number}")
+        key = parcel.parcel_identifier.strip() or (
+            f"{parcel.cadastral_district_code}::{parcel.parcel_number}"
+        )
 
         if key in seen_identifiers:
             continue
@@ -78,7 +87,10 @@ def deduplicate_parcels(parcels: list[ParcelRecord]) -> list[ParcelRecord]:
 
     return unique_parcels
 
-def merge_min_distances(distances: dict[str, float], name: str, value: float) -> dict[str, float]:
+
+def merge_min_distances(
+    distances: dict[str, float], name: str, value: float
+) -> dict[str, float]:
     current = distances.get(name)
     if current is None or value < current:
         distances[name] = value

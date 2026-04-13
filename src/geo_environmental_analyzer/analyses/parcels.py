@@ -10,6 +10,7 @@ from geo_environmental_analyzer.domain.services import (
 )
 from geo_environmental_analyzer.infrastructure.gateways.uldk_client import UldkClient
 
+
 class DefaultParcelAnalyzer(ParcelAnalyzer):
     def __init__(self, uldk_client: UldkClient, densify_step_m: float = 50.0) -> None:
         self._uldk_client = uldk_client
@@ -53,7 +54,7 @@ class DefaultParcelAnalyzer(ParcelAnalyzer):
 
         sampled.append(normalized[-1])
         return sampled
-    
+
     def _parcel_from_uldk_id(self, parcel_id: str) -> ParcelRecord:
         parcel_number = self._extract_parcel_number(parcel_id)
         cadastral_district_code = self._extract_cadastral_district_code(parcel_id)
@@ -78,8 +79,3 @@ class DefaultParcelAnalyzer(ParcelAnalyzer):
         if len(parts) < 2:
             return ""
         return parts[-2].strip()
-
-
-
-
-

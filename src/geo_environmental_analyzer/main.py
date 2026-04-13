@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 from geo_environmental_analyzer.analyses.groundwater import DefaultGroundWaterAnalyzer
@@ -12,6 +13,7 @@ from geo_environmental_analyzer.analyses.surface_water import (
     DefaultSurfaceWaterAnalyzer,
 )
 from geo_environmental_analyzer.application.run_pipeline import RunAnalysisPipeline
+from geo_environmental_analyzer.gui import launch_gui
 from geo_environmental_analyzer.infrastructure.config import AppConfig, load_settings
 from geo_environmental_analyzer.infrastructure.gateways.uldk_client import UldkClient
 from geo_environmental_analyzer.infrastructure.geodata.jcwp_repository import (
@@ -32,26 +34,69 @@ from geo_environmental_analyzer.infrastructure.reporting.xlsx_writer import (
 )
 
 
+def get_application_root() -> Path:
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parents[2]
+
+
+def get_default_config_path() -> Path:
+    app_root = get_application_root()
+    executable_name = Path(sys.executable).stem if getattr(sys, "frozen", False) else ""
+
+    candidates = [app_root / "settings.toml"]
+    if executable_name:
+        candidates.append(app_root / executable_name / "settings.toml")
+
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+
+    return candidates[0]
+
+
+def resolve_configured_path(config_path: Path, configured_value: str) -> Path:
+    path = Path(configured_value)
+    if path.is_absolute():
+        return path
+    return config_path.parent / path
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="gea")
-    subparsers = parser.add_subparsers(dest="command", required=True)
+    subparsers = parser.add_subparsers(dest="command", required=False)
 
-    run_parser = subparsers.add_parser("run", help="Run full environmental analysis.")
-    run_parser.add_argument("--input", required=True, type=Path, help="Input TXT file.")
-    run_parser.add_argument("--output", required=True, type=Path, help="Output XLSX file.")
+    run_parser = subparsers.add_parser(
+        "run",
+        help="Run full environmental analysis.",
+    )
+    run_parser.add_argument(
+        "--input",
+        required=True,
+        type=Path,
+        help="Input TXT file.",
+    )
+    run_parser.add_argument(
+        "--output", required=True, type=Path, help="Output XLSX file."
+    )
     run_parser.add_argument(
         "--config",
-        default=Path("settings.toml"),
+        default=get_default_config_path(),
         type=Path,
         help="Path to settings TOML file.",
+    )
+
+    subparsers.add_parser(
+        "gui",
+        help="Open the desktop application window.",
     )
 
     return parser
 
 
-def build_pipeline(config: AppConfig) -> RunAnalysisPipeline:
-    waters_dir = Path(config.paths.waters_data_dir)
-    rdos_dir = Path(config.paths.rdos_data_dir)
+def build_pipeline(config: AppConfig, config_path: Path) -> RunAnalysisPipeline:
+    waters_dir = resolve_configured_path(config_path, config.paths.waters_data_dir)
+    rdos_dir = resolve_configured_path(config_path, config.paths.rdos_data_dir)
 
     parcel_analyzer = DefaultParcelAnalyzer(
         UldkClient(config.services.uldk_url, config.analysis.http_timeout_seconds)
@@ -96,8 +141,9 @@ def build_pipeline(config: AppConfig) -> RunAnalysisPipeline:
 
 
 def run_command(input_path: Path, output_path: Path, config_path: Path) -> int:
-    config = load_settings(config_path)
-    pipeline = build_pipeline(config)
+    resolved_config_path = config_path.resolve()
+    config = load_settings(resolved_config_path)
+    pipeline = build_pipeline(config, resolved_config_path)
     writer = XlsxReportWriter()
 
     bundle = pipeline.run(input_path)
@@ -108,11 +154,17 @@ def run_command(input_path: Path, output_path: Path, config_path: Path) -> int:
 
 
 def main() -> int:
+    if len(sys.argv) == 1:
+        return launch_gui(run_command, get_default_config_path())
+
     parser = build_parser()
     args = parser.parse_args()
 
     if args.command == "run":
         return run_command(args.input, args.output, args.config)
+
+    if args.command == "gui":
+        return launch_gui(run_command, get_default_config_path())
 
     parser.error(f"Unsupported command: {args.command}")
     return 2

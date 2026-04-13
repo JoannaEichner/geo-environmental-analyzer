@@ -49,7 +49,9 @@ def test_uldk_parse_parcel_response_skips_no_result_lines() -> None:
     assert results == []
 
 
-def test_uldk_get_parcel_details_uses_expected_request(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_uldk_get_parcel_details_uses_expected_request(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     captured: dict[str, object] = {}
 
     def fake_get(url: str, params: dict[str, object], timeout: float) -> FakeResponse:
@@ -84,10 +86,14 @@ def test_eziudp_parse_wfs_url_extracts_first_url() -> None:
     client = EziudpClient("https://example.test", 5.0)
 
     result = client._parse_wfs_url(
-        'tekst https://integracja.example.test/wfs?service=WFS&request=GetCapabilities inne'
+        "tekst https://integracja.example.test/wfs?"
+        "service=WFS&request=GetCapabilities inne"
     )
 
-    assert result == "https://integracja.example.test/wfs?service=WFS&request=GetCapabilities"
+    assert (
+        result
+        == "https://integracja.example.test/wfs?service=WFS&request=GetCapabilities"
+    )
 
 
 def test_eziudp_get_wfs_url_for_powiat_uses_expected_request(
@@ -130,13 +136,17 @@ def test_rdos_load_layers_reads_shapefiles_and_reprojects(
         crs="EPSG:4326",
     )
 
-    def fake_read_shapefile(self: FileRdosRepository, path: Path) -> gpd.GeoDataFrame | None:
+    def fake_read_shapefile(
+        self: FileRdosRepository, path: Path
+    ) -> gpd.GeoDataFrame | None:
         assert path == shp_path
         return source_gdf
 
     monkeypatch.setattr(FileRdosRepository, "_read_shapefile", fake_read_shapefile)
 
-    repository = FileRdosRepository(RdosRepositoryConfig(data_dir=data_dir, work_epsg=2180))
+    repository = FileRdosRepository(
+        RdosRepositoryConfig(data_dir=data_dir, work_epsg=2180)
+    )
     layers = repository.load_layers()
 
     assert len(layers) == 1
@@ -151,7 +161,9 @@ def test_rdos_load_layers_raises_for_missing_directory(tmp_path: Path) -> None:
         repository.load_layers()
 
 
-def test_rdos_load_layers_raises_for_directory_without_shapefiles(tmp_path: Path) -> None:
+def test_rdos_load_layers_raises_for_directory_without_shapefiles(
+    tmp_path: Path,
+) -> None:
     data_dir = tmp_path / "rdos_empty"
     data_dir.mkdir()
 

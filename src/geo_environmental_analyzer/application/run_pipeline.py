@@ -12,6 +12,7 @@ from geo_environmental_analyzer.domain.protocols import (
 )
 from geo_environmental_analyzer.domain.services import build_ordered_route
 
+
 class RunAnalysisPipeline:
     def __init__(
         self,
@@ -44,5 +45,3 @@ class RunAnalysisPipeline:
             groundwater=groundwater,
             protected_areas=protected_areas,
         )
-
-

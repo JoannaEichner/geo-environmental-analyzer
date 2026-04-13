@@ -9,7 +9,9 @@ from geo_environmental_analyzer.infrastructure.input.points_txt import TxtPointR
 
 def test_read_parses_tab_separated_points(tmp_path: Path) -> None:
     input_path = tmp_path / "points.txt"
-    input_path.write_text("1\tP1\t7450669,31\t5780467,22\n2\tP2\t7450700.00\t5780500.00\n")
+    input_path.write_text(
+        "1\tP1\t7450669,31\t5780467,22\n2\tP2\t7450700.00\t5780500.00\n"
+    )
 
     points = TxtPointReader().read(input_path)
 
@@ -42,7 +44,9 @@ def test_read_skips_blank_lines(tmp_path: Path) -> None:
 
 def test_read_route_builds_ordered_route(tmp_path: Path) -> None:
     input_path = tmp_path / "points_route.txt"
-    input_path.write_text("1\tP1\t7450669.31\t5780467.22\n2\tP2\t7450700.00\t5780500.00\n")
+    input_path.write_text(
+        "1\tP1\t7450669.31\t5780467.22\n2\tP2\t7450700.00\t5780500.00\n"
+    )
 
     route = TxtPointReader().read_route(input_path)
 
@@ -76,7 +80,9 @@ def test_read_raises_for_invalid_x_coordinate(tmp_path: Path) -> None:
     input_path = tmp_path / "invalid_x.txt"
     input_path.write_text("1\tP1\tnot-a-number\t5780467.22\n")
 
-    with pytest.raises(ValueError, match="Line 1: invalid x coordinate value 'not-a-number'"):
+    with pytest.raises(
+        ValueError, match="Line 1: invalid x coordinate value 'not-a-number'"
+    ):
         TxtPointReader().read(input_path)
 
 
@@ -84,5 +90,7 @@ def test_read_raises_for_invalid_y_coordinate(tmp_path: Path) -> None:
     input_path = tmp_path / "invalid_y.txt"
     input_path.write_text("1\tP1\t7450669.31\tbad-value\n")
 
-    with pytest.raises(ValueError, match="Line 1: invalid y coordinate value 'bad-value'"):
+    with pytest.raises(
+        ValueError, match="Line 1: invalid y coordinate value 'bad-value'"
+    ):
         TxtPointReader().read(input_path)

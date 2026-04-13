@@ -1,46 +1,217 @@
 # Geo Environmental Analyzer
 
-## Project Goal
+Geo Environmental Analyzer is an end-to-end Python application that reads a
+single TXT file with route points, performs environmental analyses, and
+generates a structured XLSX report used in day-to-day analytical work.
 
-Geo Environmental Analyzer is an end-to-end environmental analysis tool.
-It reads one TXT file with points, interprets those points as a single route,
-and generates a structured XLSX report.
+The project was built as a maintainable replacement for legacy one-off scripts.
+It emphasizes modular architecture, clear domain boundaries, testability, and a
+practical user experience for non-technical users through a small Windows GUI.
 
-The project is intended to replace legacy one-off scripts with a cleaner,
-modular, testable, and professional architecture.
+## Project Snapshot
 
-## MVP Scope
+- real-world environmental workflow automation rather than a toy exercise
+- one TXT input interpreted as one ordered route
+- one XLSX report with four operational sheets
+- layered architecture with domain/application/infrastructure separation
+- desktop GUI, CLI entry point, and Windows `.exe` packaging
+- automated validation through `ruff` and `pytest`
 
-The MVP includes four analysis areas:
+## Core Workflow
 
-1. Parcels intersected by the route.
-2. Surface water bodies (JCWP).
-3. Groundwater bodies (JCWPd).
-4. Nature protection forms and their minimal distances.
+Given one TXT file with ordered route points, the application generates one
+Excel report with:
 
-## Input And Output Contract
+- parcels intersected by the route
+- surface water bodies (JCWP)
+- groundwater bodies (JCWPd)
+- protected areas and minimal distances
 
-### Input
+The generated report contains the following sheets:
 
-- One TXT file is the canonical input.
-- Canonical row format: `nr<TAB>nazwa<TAB>x<TAB>y`.
-- Points are interpreted as one ordered route.
+- `01_Dzialki`
+- `02_Wody_Status`
+- `03_Wody_Cele`
+- `04_Ochrona`
 
-### Output
+Distances are reported in kilometers with precision to 2 decimal places.
 
-- One XLSX report is the canonical output.
-- The report contains the following sheets:
-  - `01_Dzialki`
-  - `02_Wody_Status`
-  - `03_Wody_Cele`
-  - `04_Ochrona`
-- Distances are reported in kilometers with precision to 2 decimal places.
+## Quick Start
 
-## Working Rules
+### 1. Install
 
-- We work in a modular way.
-- We implement one task at a time.
-- We do not add logic beyond the agreed scope.
-- Documentation and project decisions must be updated as the project evolves.
-- The reference plan lives in [plan.md](/c:/Users/jboro/Desktop/Nauka/geo-environmental-analyzer/plan.md).
-- The task breakdown lives in [implementation_tasks.md](/c:/Users/jboro/Desktop/Nauka/geo-environmental-analyzer/implementation_tasks.md).
+```powershell
+python -m pip install -e ".[dev]"
+```
+
+If your Python scripts directory is not on `PATH`, you can still run the
+application with `python -m geo_environmental_analyzer.main`.
+
+### 2. Run The CLI
+
+```powershell
+gea run `
+  --input path\to\route_points.txt `
+  --output path\to\report.xlsx `
+  --config settings.toml
+```
+
+Fallback without the `gea` command:
+
+```powershell
+python -m geo_environmental_analyzer.main run `
+  --input path\to\route_points.txt `
+  --output path\to\report.xlsx `
+  --config settings.toml
+```
+
+### 3. Launch The GUI
+
+```powershell
+gea gui
+```
+
+Or simply:
+
+```powershell
+python -m geo_environmental_analyzer.main
+```
+
+Running without CLI arguments opens the desktop GUI.
+
+### 4. Run Quality Checks
+
+```powershell
+python -m ruff check .
+python -m pytest
+```
+
+## Input Format
+
+The canonical input is one TXT file in the form:
+
+```text
+nr<TAB>nazwa<TAB>x<TAB>y
+```
+
+Example:
+
+```text
+1	P1	7500000.00	5788000.00
+2	P2	7500350.00	5788120.00
+3	P3	7500720.00	5788260.00
+```
+
+The application interprets the points as one ordered route.
+
+## Output Structure
+
+The application generates one XLSX workbook with:
+
+- parcel list
+- water status blocks
+- environmental goals blocks
+- protected-area distance table
+
+## Architecture
+
+The codebase is split into clear layers:
+
+- `domain` for models, protocols, and pure services
+- `application` for orchestration use cases such as the analysis pipeline
+- `analyses` for analysis services built on top of repositories and gateways
+- `infrastructure` for TXT readers, geodata repositories, HTTP clients, XLSX
+  writing, and packaging entry points
+
+This keeps business logic separate from IO, HTTP calls, geodata access, and
+Excel generation.
+
+## Engineering Focus
+
+From an engineering perspective, the project demonstrates:
+
+- refactoring operational script work into a structured application
+- explicit boundaries between domain logic and infrastructure details
+- public-data integrations through dedicated gateways and repositories
+- test coverage for critical parsing, orchestration, and reporting paths
+- packaging considerations for non-technical Windows users
+
+## Data Sources
+
+The MVP uses:
+
+- local water datasets for JCWP and JCWPd
+- local RDOS shapefiles for protected areas
+- public ULDK service for parcel lookup and enrichment
+- public EZiUDP integration prepared for parcel-related extensions
+
+Data paths are configured in `settings.toml`.
+
+## Local Data Requirements
+
+The repository contains application code, but the full environmental workflow
+requires local geospatial datasets to be available in the configured data
+directories.
+
+In particular, the application expects:
+
+- `data/waters` for local datasets used in JCWP and JCWPd analysis
+- `data/RDOS` for local shapefiles used in protected-area analysis
+
+Those datasets are not committed to the public repository. Without them, the
+project can still be reviewed as a codebase and tested, but it will not run
+end-to-end for the full production workflow.
+
+## Windows Packaging
+
+The repository includes a PyInstaller build flow for a Windows desktop package:
+
+- `GeoEnvironmentalAnalyzer.spec`
+- `build_windows_exe.ps1`
+
+The packaged application is distributed as a folder containing:
+
+- `GeoEnvironmentalAnalyzer.exe`
+- `settings.toml`
+- `data/waters`
+- `data/RDOS`
+- `data/input`
+- `data/output`
+
+## Tests
+
+The project includes:
+
+- unit tests for domain services and TXT parsing
+- integration tests for the pipeline and XLSX writer
+- adapter-level tests for infrastructure parsing behavior
+- smoke tests for CLI and GUI entry flow
+
+GitHub Actions runs the repository checks automatically on push and pull
+request.
+
+## Tech Stack
+
+- Python
+- pandas
+- geopandas
+- shapely
+- pyproj
+- requests
+- openpyxl
+- pytest
+- Ruff
+- PyInstaller
+- tkinter
+
+## Current Scope
+
+This repository currently targets a focused MVP:
+
+- one input TXT file
+- one ordered route
+- one final XLSX report
+- four analysis domains
+
+The application is designed so the reporting layer and analytical modules can
+be extended in future iterations without rewriting the whole system.

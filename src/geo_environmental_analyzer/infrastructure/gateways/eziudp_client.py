@@ -1,14 +1,16 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import re
+from dataclasses import dataclass
 
 import requests
+
 
 @dataclass(slots=True)
 class EziudpWfsResult:
     powiat_code: str
     wfs_url: str
+
 
 class EziudpClient:
     def __init__(self, base_url: str, timeout_seconds: float) -> None:
@@ -27,10 +29,9 @@ class EziudpClient:
         response.raise_for_status()
 
         return self._parse_wfs_url(response.text)
+
     def _parse_wfs_url(self, response_text: str) -> str | None:
         match = re.search(r"https?://[^\s\"'<>]+", response_text)
         if not match:
             return None
         return match.group(0)
-
-

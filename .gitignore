@@ -30,6 +30,8 @@ Thumbs.db
 
 data/output/
 data/input/KMI_PUNKTY.txt
+data/input/*.txt
 data/RDOS/
+data/sample/
 data/waters/
 *.log

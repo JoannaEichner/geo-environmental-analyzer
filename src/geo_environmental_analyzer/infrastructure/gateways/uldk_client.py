@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import re
+from dataclasses import dataclass
 
 import requests
 from pyproj import Transformer
@@ -15,6 +15,7 @@ from geo_environmental_analyzer.domain.services import (
 @dataclass(slots=True)
 class UldkParcelResult:
     parcel_id: str
+
 
 class UldkClient:
     def __init__(self, base_url: str, timeout_seconds: float) -> None:
@@ -36,7 +37,7 @@ class UldkClient:
 
         response.raise_for_status()
         return self._parse_parcel_response(response.text)
-    
+
     def _parse_parcel_response(self, response_text: str) -> list[UldkParcelResult]:
         lines = [line.strip() for line in response_text.splitlines() if line.strip()]
         results: list[UldkParcelResult] = []
@@ -44,7 +45,11 @@ class UldkClient:
         for line in lines:
             if line.startswith("-1"):
                 continue
-            if re.fullmatch(r"[A-Za-z0-9_]+", line) and ";" not in line and "." not in line:
+            if (
+                re.fullmatch(r"[A-Za-z0-9_]+", line)
+                and ";" not in line
+                and "." not in line
+            ):
                 continue
 
             match = re.match(r"^(\d{4,})", line)
@@ -54,7 +59,7 @@ class UldkClient:
             results.append(UldkParcelResult(parcel_id=line))
 
         return results
-    
+
     def _to_uldk_xy(self, value_a: float, value_b: float) -> tuple[float, float]:
         epsg = detect_epsg_2000(value_a, value_b)
         easting, northing = normalize_pl2000_coordinates(value_a, value_b)
@@ -93,7 +98,11 @@ class UldkClient:
         for line in lines:
             if line.startswith("-1"):
                 continue
-            if re.fullmatch(r"[A-Za-z0-9_]+", line) and ";" not in line and "." not in line:
+            if (
+                re.fullmatch(r"[A-Za-z0-9_]+", line)
+                and ";" not in line
+                and "." not in line
+            ):
                 continue
 
             parts = [part.strip() for part in line.split("|")]
@@ -112,6 +121,7 @@ class UldkClient:
 
         return None
 
+
 @dataclass(slots=True)
 class UldkParcelDetails:
     parcel_id: str
@@ -119,5 +129,3 @@ class UldkParcelDetails:
     powiat_name: str
     voivodeship_name: str
     cadastral_district_name: str
-
-

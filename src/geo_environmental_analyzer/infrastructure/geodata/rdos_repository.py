@@ -5,15 +5,18 @@ from pathlib import Path
 
 import geopandas as gpd
 
+
 @dataclass(slots=True)
 class RdosRepositoryConfig:
     data_dir: Path
     work_epsg: int = 2180
 
+
 @dataclass(slots=True)
 class RdosLayer:
     source_name: str
     gdf: gpd.GeoDataFrame
+
 
 class FileRdosRepository:
     def __init__(self, repo_config: RdosRepositoryConfig) -> None:

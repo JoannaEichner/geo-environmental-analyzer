@@ -91,7 +91,9 @@ def test_deduplicate_parcels_uses_code_and_number_fallback() -> None:
 
     result = deduplicate_parcels(parcels)
 
-    assert [(parcel.cadastral_district_code, parcel.parcel_number) for parcel in result] == [
+    assert [
+        (parcel.cadastral_district_code, parcel.parcel_number) for parcel in result
+    ] == [
         ("0015", "194"),
         ("0016", "194"),
     ]

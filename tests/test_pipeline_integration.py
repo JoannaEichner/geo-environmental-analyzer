@@ -82,8 +82,7 @@ def test_pipeline_and_writer_generate_expected_xlsx(tmp_path: Path) -> None:
     input_path = tmp_path / "points.txt"
     output_path = tmp_path / "report.xlsx"
     input_path.write_text(
-        "1\tP1\t7450669.31\t5780467.22\n"
-        "2\tP2\t7450700.00\t5780500.00\n",
+        "1\tP1\t7450669.31\t5780467.22\n2\tP2\t7450700.00\t5780500.00\n",
         encoding="utf-8",
     )
 
@@ -120,23 +119,29 @@ def test_pipeline_and_writer_generate_expected_xlsx(tmp_path: Path) -> None:
     assert parcels_sheet["B1"].value == "Obręb"
     assert parcels_sheet["A2"].value == "194"
     assert parcels_sheet["B2"].value == "0015 Jezowka"
+    assert parcels_sheet["A2"].alignment.horizontal == "center"
+    assert parcels_sheet["A2"].border.left.style == "thin"
 
     water_status_sheet = workbook["02_Wody_Status"]
-    assert water_status_sheet["A1"].value == 'PLRW2000112727699 „Pisia test”:'
+    assert water_status_sheet["A1"].value == 'PLRW2000112727699 "Pisia test":'
     assert water_status_sheet["A2"].value == "Status JCWP"
     assert water_status_sheet["B2"].value == "naturalna czesc wod"
     assert (
         water_status_sheet["A7"].value
         == "Jednolita czesc wod podziemnych nr 65 PLGW200065"
     )
+    assert water_status_sheet["B2"].alignment.horizontal == "center"
+    assert water_status_sheet["B2"].border.right.style == "thin"
 
     water_goals_sheet = workbook["03_Wody_Cele"]
-    assert water_goals_sheet["A1"].value == 'PLRW2000112727699 „Pisia test”:'
+    assert water_goals_sheet["A1"].value == 'PLRW2000112727699 "Pisia test":'
     assert water_goals_sheet["A2"].value == "stan/potencjał ekologiczny"
     assert water_goals_sheet["B2"].value == "umiarkowany stan ekologiczny"
 
     protection_sheet = workbook["04_Ochrona"]
-    assert protection_sheet["A1"].value == "Nazwa obiektu"
-    assert protection_sheet["B1"].value == "Odległość [km]"
+    assert protection_sheet["A1"].value == "Nazwa formy ochrony przyrody"
+    assert protection_sheet["B1"].value == "Odległość od planowanej inwestycji"
     assert protection_sheet["A2"].value == 'Rezerwat przyrody "Wielkie Jezioro"'
-    assert protection_sheet["B2"].value == 1.23
+    assert protection_sheet["B2"].value == "1,23 km"
+    assert protection_sheet["B2"].alignment.horizontal == "center"
+    assert protection_sheet["B2"].border.bottom.style == "thin"
