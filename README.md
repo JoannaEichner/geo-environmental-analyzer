@@ -36,27 +36,9 @@ The generated report contains the following sheets:
 
 Distances are reported in kilometers with precision to 2 decimal places.
 
-## Quick Start
+## Running Locally
 
-### 1. Install
-
-```powershell
-python -m pip install -e ".[dev]"
-```
-
-If your Python scripts directory is not on `PATH`, you can still run the
-application with `python -m geo_environmental_analyzer.main`.
-
-### 2. Run The CLI
-
-```powershell
-gea run `
-  --input path\to\route_points.txt `
-  --output path\to\report.xlsx `
-  --config settings.toml
-```
-
-Fallback without the `gea` command:
+To run the CLI:
 
 ```powershell
 python -m geo_environmental_analyzer.main run `
@@ -65,26 +47,14 @@ python -m geo_environmental_analyzer.main run `
   --config settings.toml
 ```
 
-### 3. Launch The GUI
-
-```powershell
-gea gui
-```
-
-Or simply:
+To launch the desktop GUI:
 
 ```powershell
 python -m geo_environmental_analyzer.main
 ```
 
-Running without CLI arguments opens the desktop GUI.
-
-### 4. Run Quality Checks
-
-```powershell
-python -m ruff check .
-python -m pytest
-```
+Running without CLI arguments opens the desktop GUI. A full end-to-end analysis
+run also requires the local datasets referenced in `settings.toml`.
 
 ## Input Format
 
@@ -97,9 +67,9 @@ nr<TAB>nazwa<TAB>x<TAB>y
 Example:
 
 ```text
-1	P1	7500000.00	5788000.00
-2	P2	7500350.00	5788120.00
-3	P3	7500720.00	5788260.00
+1	P1	7500000.35	5788000.00
+2	P2	7500350.00	5788120.89
+3	P3	7500720.66	5788260.00
 ```
 
 The application interprets the points as one ordered route.
