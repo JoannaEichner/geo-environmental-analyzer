@@ -178,6 +178,23 @@ The packaged application is distributed as a folder containing:
 - `data/input`
 - `data/output`
 
+## Screenshots
+
+The screenshots below show both the desktop workflow and the generated Excel
+report layout:
+
+### Desktop GUI
+
+![Desktop GUI](docs/screenshots/gui-main-window.png)
+
+### Report Example: Water Status
+
+![Generated XLSX report - water status](docs/screenshots/report-workbook-02.png)
+
+### Report Example: Protected Areas
+
+![Generated XLSX report - protected areas](docs/screenshots/report-workbook-04.png)
+
 ## Tests
 
 The project includes:
